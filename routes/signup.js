@@ -24,12 +24,18 @@ router.post('/signup', (req, res, next) => {
     })
     .then(userFromDB => {
       /* console.log('Newly created user is: ', userFromDB); */
-      res.redirect('/userProfile');
+      res.redirect(`/userProfile/${userFromDB.username}`);
     })
     .catch(error => next(error));
 });
 
-router.get('/userProfile', (req, res) => res.render('auth/user'));
+router.get('/userProfile/:username', (req, res) => {
+  User.findOne({username: req.params.username})
+  .then(founduser => {
+    res.render('auth/user', {user: founduser})
+  })
+
+});
 
 
 
