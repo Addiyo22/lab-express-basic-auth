@@ -1,15 +1,16 @@
 const router = require("express").Router();
 const bcryptjs = require('bcryptjs');
 const User = require('../models/User.model')
+const { isLoggedIn, isLoggedOut } = require('../middleware/route-guard.js');
 const saltRounds = 10;
 
 
 /* GET home page */
-router.get("/signup", (req, res, next) => {
+router.get("/signup",isLoggedOut, (req, res, next) => {
   res.render("auth/signup");
 });
 
-router.post('/signup', (req, res, next) => {
+router.post('/signup',isLoggedOut, (req, res, next) => {
   const { username, email, password } = req.body;
  
   bcryptjs
@@ -29,16 +30,16 @@ router.post('/signup', (req, res, next) => {
     .catch(error => next(error));
 });
 
-router.get('/userProfile', (req, res) => {
+router.get('/userProfile',isLoggedIn, (req, res) => {
   console.log('req.session', req.session)
   res.render('auth/user', {user: req.session.currentUser})
 });
 
-router.get('/login', (req, res, next) => {
+router.get('/login',isLoggedOut, (req, res, next) => {
   res.render("auth/login")
 });
 
-router.post('/login', (req, res, next) => {
+router.post('/login',isLoggedOut, (req, res, next) => {
   console.log('SESSION =====> ', req.session);
   const { email, password } = req.body;
   if (email === '' || password === '') {
@@ -64,7 +65,7 @@ router.post('/login', (req, res, next) => {
     .catch(error => next(error));
 });
 
-router.post('/logout', (req, res, next) => {
+router.post('/logout',isLoggedIn, (req, res, next) => {
   req.session.destroy(err => {
     if (err) next(err);
     res.redirect('/');
